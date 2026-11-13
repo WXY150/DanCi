@@ -3,7 +3,7 @@ const learning = require('../../services/learning');
 const session = require('../../services/session');
 
 Page({
-  data: { word: null, revealed: false, error: '', busy: false, progress: 0 },
+  data: { word: null, revealed: false, error: '', imageUnavailable: false, busy: false, progress: 0 },
   onLoad() {
     const words = wx.getStorageSync('danci_words') || [];
     const state = session.load();
@@ -17,7 +17,7 @@ Page({
       wx.redirectTo({ url: '/pages/result/result' });
       return;
     }
-    this.setData({ word, revealed: false, progress: this.state.completedIds.length });
+    this.setData({ word, revealed: false, imageUnavailable: false, progress: this.state.completedIds.length });
   },
   onReveal() {
     this.setData({ revealed: true });
@@ -31,6 +31,12 @@ Page({
   },
   onKnown() {
     this.submit('known');
+  },
+  onImageError() {
+    this.setData({ imageUnavailable: true });
+  },
+  onHome() {
+    wx.reLaunch({ url: '/pages/home/home' });
   },
   submit(result) {
     if (this.data.busy) return;

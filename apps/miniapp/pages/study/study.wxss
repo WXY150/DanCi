@@ -5,6 +5,7 @@
 .answer { margin-top: 36rpx; }
 .meaning, .mnemonic { display: block; margin-top: 20rpx; color: #5e6b74; line-height: 1.7; }
 .image { display: block; width: 100%; height: 360rpx; margin-top: 20rpx; border-radius: 16rpx; background: #f1f1ec; }
+.image-fallback { display: block; margin-top: 20rpx; padding: 24rpx; border-radius: 16rpx; background: #f1f1ec; color: #6b7780; }
 .actions { display: flex; gap: 20rpx; margin-top: 32rpx; }
 .actions button { flex: 1; }
 .error { display: block; margin-top: 24rpx; color: #b94e2d; }

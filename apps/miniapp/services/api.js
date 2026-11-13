@@ -22,6 +22,10 @@ function request(path, options = {}) {
           resolve(response.data);
           return;
         }
+        if (response.statusCode === 401) {
+          getApp().globalData.sessionToken = '';
+          wx.removeStorageSync('danci_session_token');
+        }
         const error = response.data?.error || {};
         reject(Object.assign(new Error(error.message || '服务请求失败'), {
           code: error.code,

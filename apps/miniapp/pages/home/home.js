@@ -26,6 +26,10 @@ Page({
   startStudy() {
     wx.navigateTo({ url: '/pages/study/study' });
   },
+  onRetry() {
+    this.setData({ loading: true, error: '' });
+    this.onLoad();
+  },
   openProfile() {
     wx.navigateTo({ url: '/pages/profile/profile' });
   }
