@@ -1,0 +1,13 @@
+{
+  "name": "danci-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "check": "node --check app.js && node --check server/index.js && node --check server/db.js && node --check server/image-generation.js",
+    "test": "node tools/learning-check.mjs && node tools/content-check.mjs && node tools/server-check.mjs"
+  },
+  "dependencies": {
+    "mysql2": "^3.23.4"
+  }
+}

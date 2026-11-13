@@ -1,0 +1,15 @@
+.env
+generated/
+node_modules/
+
+.workbuddy/
+.idea/
+.vscode/
+*.log
+*.tmp
+data/word/*.zip
+
+.workbuddy/
+.idea/
+.vscode/
+
