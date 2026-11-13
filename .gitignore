@@ -14,3 +14,4 @@ data/word/*.zip
 .idea/
 .vscode/
 
+apps/user-h5/data/word/*.zip
