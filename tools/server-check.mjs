@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync } from 'node:fs';
-import { WORDS } from '../data/word2-words.js';
+import path from 'node:path';
+import { WORDS } from '../apps/user-h5/data/word2-words.js';
 import { buildImagePrompt, isGeneratedImageUrl, isRetryableAnalysisError, resolveApiKeys } from '../server/image-generation.js';
 
 assert.equal(WORDS.length, 114);
 assert.ok(WORDS.every(word => word.word && word.phonetic && word.meaning));
-assert.ok(WORDS.every(word => existsSync(word.imageUrl)), '重命名后的图片必须全部存在');
-assert.equal(readdirSync('data/word/2/1').some(name => /^[0-9a-f]{32}\./.test(name)), false);
-assert.equal(readdirSync('data/word/1/1').some(name => /^[0-9a-f]{32}\./.test(name)), false);
+assert.ok(WORDS.every(word => existsSync(path.join('apps/user-h5', word.imageUrl))), '重命名后的图片必须全部存在');
+assert.equal(readdirSync('apps/user-h5/data/word/2/1').some(name => /^[0-9a-f]{32}\./.test(name)), false);
+assert.equal(readdirSync('apps/user-h5/data/word/1/1').some(name => /^[0-9a-f]{32}\./.test(name)), false);
 assert.deepEqual(resolveApiKeys({ OPENAI_API_KEY: 'shared' }), { text: 'shared', image: 'shared' });
 assert.deepEqual(resolveApiKeys({ OPENAI_API_KEY: 'shared', TEXT_API_KEY: 'text', IMAGE_API_KEY: 'image' }), { text: 'text', image: 'image' });
 assert.equal(isGeneratedImageUrl('/generated/order-123456.png'), true);

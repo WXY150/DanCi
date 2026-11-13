@@ -2,7 +2,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { unlink, mkdir, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import path from 'node:path';
-import { WORDS as FALLBACK_WORDS } from '../data/word2-words.js';
+import { WORDS as FALLBACK_WORDS } from '../apps/user-h5/data/word2-words.js';
 import { checkDatabase, connectDatabase, findWord, listWords, saveGeneratedImage, ensureDefaultAdmin, getUserProgress, getUserProgressRecord, saveUserProgressWithRevision, upsertUserProgress, deleteUserProgress, listAllUsers, deleteUserById, updateUserRole, findUserById, recordWordImage, listWordImages, findWordImage, activateWordImage, deleteWordImage, createWord, findWordByText } from './db.js';
 import { generateWordImage, imageGenerationConfigured, isGeneratedImageUrl } from './image-generation.js';
 import { registerUser, loginUser, wechatLogin, verifySession, logout, cleanupExpiredSessions } from './auth.js';
@@ -19,8 +19,24 @@ const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml'
 };
-const PUBLIC_FILES = new Set(['index.html', 'app.js', 'styles.css', 'admin.html', 'admin.js', 'admin.css', 'login.html', 'login.js', 'login.css']);
-const PUBLIC_DIRS = ['data/', 'services/', 'images/', 'generated/'];
+const PUBLIC_FILES = new Map([
+  ['/', 'apps/user-h5/index.html'],
+  ['/index.html', 'apps/user-h5/index.html'],
+  ['/app.js', 'apps/user-h5/app.js'],
+  ['/styles.css', 'apps/user-h5/styles.css'],
+  ['/admin.html', 'apps/admin-web/admin.html'],
+  ['/admin.js', 'apps/admin-web/admin.js'],
+  ['/admin.css', 'apps/admin-web/admin.css'],
+  ['/login.html', 'apps/auth-web/login.html'],
+  ['/login.js', 'apps/auth-web/login.js'],
+  ['/login.css', 'apps/auth-web/login.css']
+]);
+const PUBLIC_PREFIXES = [
+  ['/data/', 'apps/user-h5/data/'],
+  ['/services/', 'apps/user-h5/services/'],
+  ['/images/', 'apps/user-h5/images/'],
+  ['/generated/', 'server/generated/']
+];
 let databaseReady = false;
 
 // 解析 Cookie
@@ -83,7 +99,7 @@ async function readJson(request, maxBytes = 4096) {
   }
 }
 
-const UPLOAD_DIR = path.join(ROOT, 'generated');
+const UPLOAD_DIR = path.join(import.meta.dirname, 'generated');
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5MB
 const UPLOAD_EXT = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp' };
 
@@ -130,9 +146,17 @@ async function saveUploadedImage(request, word) {
   return `/generated/${filename}`;
 }
 
+function resolvePublicPath(pathname) {
+  const decoded = decodeURIComponent(pathname).split('?')[0];
+  const direct = PUBLIC_FILES.get(decoded);
+  if (direct) return direct;
+  const match = PUBLIC_PREFIXES.find(([prefix]) => decoded.startsWith(prefix));
+  return match ? `${match[1]}${decoded.slice(match[0].length)}` : null;
+}
+
 function serveStatic(response, pathname) {
-  const relative = pathname === '/' ? 'index.html' : decodeURIComponent(pathname).replace(/^\/+/, '');
-  if (!PUBLIC_FILES.has(relative) && !PUBLIC_DIRS.some(directory => relative.startsWith(directory))) {
+  const relative = resolvePublicPath(pathname);
+  if (!relative) {
     return json(response, 403, { error: '禁止访问' });
   }
   const filename = path.resolve(ROOT, relative);
@@ -502,8 +526,8 @@ async function handler(request, response) {
     await deleteWordImage(imageId);
     // 若是生成的本地文件，顺便从磁盘删除
     if (isGeneratedImageUrl(image.imageUrl)) {
-      const filename = path.resolve(ROOT, image.imageUrl.replace(/^\/+/, ''));
-      if (filename.startsWith(`${ROOT}${path.sep}`) && existsSync(filename)) {
+      const filename = path.resolve(UPLOAD_DIR, image.imageUrl.replace(/^\/generated\//, ''));
+      if (filename.startsWith(`${UPLOAD_DIR}${path.sep}`) && existsSync(filename)) {
         try { await unlink(filename); } catch { /* 忽略磁盘删除失败 */ }
       }
     }
@@ -525,8 +549,12 @@ async function handler(request, response) {
     const word = await findWord(id);
     if (!word) return json(response, 404, { error: '单词不存在' });
     const { imageUrl } = await readJson(request);
-    const filename = typeof imageUrl === 'string' ? path.resolve(ROOT, imageUrl.replace(/^\/+/, '')) : '';
-    if (!isGeneratedImageUrl(imageUrl) || !existsSync(filename)) return json(response, 400, { error: '候选图片无效或已失效' });
+    const filename = typeof imageUrl === 'string' && isGeneratedImageUrl(imageUrl)
+      ? path.resolve(UPLOAD_DIR, imageUrl.replace(/^\/generated\//, ''))
+      : '';
+    if (!isGeneratedImageUrl(imageUrl) || !filename.startsWith(`${UPLOAD_DIR}${path.sep}`) || !existsSync(filename)) {
+      return json(response, 400, { error: '候选图片无效或已失效' });
+    }
     const updated = await saveGeneratedImage(id, imageUrl);
     return json(response, 200, { word: updated });
   }

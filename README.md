@@ -81,25 +81,27 @@ npm run check   # 语法检查
 
 ## 📂 项目结构
 
-```
+```text
 DanCi/
-├── index.html              # 用户学习端
-├── app.js                  # 学习端逻辑
-├── login.html              # 管理员登录页
-├── admin.html              # 管理后台
-├── server/                 # 服务器端
-│   ├── index.js           # 主服务器（含认证API）
-│   ├── db.js              # 数据库操作
-│   ├── auth.js            # 认证服务
-│   └── image-generation.js # AI图片生成
-├── data/
-│   ├── word-roots.js      # 词根词缀数据
-│   └── confusable-words.js # 形近词数据
-└── services/              # 学习服务
-    ├── content.js         # 内容服务
-    ├── learning.js        # 学习规则
-    └── progress.js        # 进度管理
+├── apps/
+│   ├── user-h5/           # H5 用户端兼容实现：页面、学习服务、词库和图片
+│   ├── auth-web/          # 登录/注册入口（H5 与管理员共用）
+│   ├── admin-web/         # 管理员 Web：词库、用户和 AI 图片审核
+│   └── miniapp/           # 微信小程序用户端：API 服务层和页面骨架
+├── server/                # 服务端：HTTP API、认证、MySQL、AI 生图和运行时图片
+├── packages/              # 可复用规则（当前为学习规则迁移副本）
+├── contracts/             # API 契约
+├── tests/                 # 契约和自动化检查
+├── tools/                 # 开发/验证脚本
+├── ops/                   # 备份和回滚脚本
+├── docs/                  # 产品需求和项目文档
+├── specs/                 # Spec Kit 规格、计划、任务和契约
+└── .specify/              # Spec Kit 工作流、模板和项目章程
 ```
+
+服务启动时会把 `/` 映射到 `apps/user-h5/`，把 `/login.html` 映射到
+`apps/auth-web/`，把 `/admin.html` 映射到 `apps/admin-web/`；这些是兼容入口，
+服务端真实代码只在 `server/`，微信小程序代码只在 `apps/miniapp/`。
 
 ## 📖 项目文档
 

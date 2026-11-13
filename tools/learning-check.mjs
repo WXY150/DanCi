@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { WORDS } from '../data/words.js';
-import { addDays, answer, currentWord, dailyStats, recallUnknown, startSession, stats } from '../services/learning.js';
+import { WORDS } from '../apps/user-h5/data/words.js';
+import { addDays, answer, currentWord, dailyStats, recallUnknown, startSession, stats } from '../apps/user-h5/services/learning.js';
 
 let state = startSession(WORDS, null, true);
 assert.equal(state.queue.length, WORDS.length);

@@ -93,7 +93,7 @@ apps/admin-web/
 ├── admin.js
 └── admin.css
 
-apps/legacy-h5/              # temporary migration surface
+apps/user-h5/                # temporary H5 migration surface and local compatibility data
 packages/learning/           # migrated/reused learning rules
 contracts/api-v1.md
 tests/contract/
@@ -103,9 +103,9 @@ specs/001-server-wechat-miniapp/
 **Structure Decision**: Use one repository with three deployable surfaces. The
 server owns all secrets, data access, AI generation, and image storage. The
 mini program is a learner-only client. The admin web client remains protected
-and can be deployed with the server or separately. The current root H5 files
-move under `apps/legacy-h5` only after the mini program passes acceptance; no
-large move is required before the new repository exists.
+and can be deployed with the server or separately. H5 compatibility files,
+services, and local demo content live under `apps/user-h5`; the server maps the
+legacy root URLs to that directory.
 
 ## Complexity Tracking
 

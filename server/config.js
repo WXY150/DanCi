@@ -18,7 +18,7 @@ export function readConfig(env = process.env) {
       appId: env.WECHAT_APP_ID || '',
       appSecret: env.WECHAT_APP_SECRET || ''
     },
-    imageDir: path.resolve(env.IMAGE_DIR || path.join(import.meta.dirname, '..', 'generated')),
+    imageDir: path.resolve(import.meta.dirname, env.IMAGE_DIR || 'generated'),
     databaseRequired: env.DB_REQUIRED === 'true'
   };
 }

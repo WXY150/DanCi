@@ -2,8 +2,7 @@ import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const ROOT = path.resolve(import.meta.dirname, '..');
-const OUTPUT_DIR = path.join(ROOT, 'generated');
+const OUTPUT_DIR = path.join(import.meta.dirname, 'generated');
 const SIMPLE_PROMPT = readFileSync(path.join(import.meta.dirname, 'prompts', 'simple-or-compound.txt'), 'utf8');
 const COMPLEX_PROMPT = readFileSync(path.join(import.meta.dirname, 'prompts', 'complex-root-affix.txt'), 'utf8');
 

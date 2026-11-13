@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 import crypto from 'node:crypto';
-import { WORDS } from '../data/word2-words.js';
+import { WORDS } from '../apps/user-h5/data/word2-words.js';
 
 let pool;
 

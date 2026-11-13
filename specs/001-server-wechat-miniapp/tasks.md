@@ -17,10 +17,10 @@ file or directory so it can be assigned after the repository is created.
 **Purpose**: Create the target repository layout without changing product
 behavior yet.
 
-- [X] T001 Create the target monorepo directories `server/`, `apps/miniapp/`, `apps/admin-web/`, `apps/legacy-h5/`, `packages/learning/`, `contracts/`, and `tests/contract/`.
+- [X] T001 Create the target monorepo directories `server/`, `apps/miniapp/`, `apps/admin-web/`, `apps/user-h5/`, `packages/learning/`, `contracts/`, and `tests/contract/`.
 - [X] T002 [P] Verify the current Node service files remain in `server/` with `server/prompts/` and existing image-generation tests preserved.
 - [X] T003 [P] Stage administrator files in `apps/admin-web/`; keep root copies until the H5 migration is accepted.
-- [X] T004 [P] Copy the current H5 client into `apps/legacy-h5/` and keep its existing service boundary during migration.
+- [X] T004 [P] Copy the current H5 client into `apps/user-h5/` and keep its existing service boundary during migration.
 - [X] T005 [P] Add the native mini program skeleton in `apps/miniapp/app.js`, `apps/miniapp/app.json`, and `apps/miniapp/app.wxss`.
 
 ---
@@ -108,7 +108,7 @@ restore a previous release, and verify progress and active images remain.
 
 ### Tests for User Story 3
 
-- [ ] T030 [P] [US3] Add a release-package secret scan for `apps/miniapp/` and `apps/legacy-h5/` in `tests/contract/client-secret-scan.mjs`.
+- [ ] T030 [P] [US3] Add a release-package secret scan for `apps/miniapp/` and `apps/user-h5/` in `tests/contract/client-secret-scan.mjs`.
 - [ ] T031 [P] [US3] Add HTTPS health, restart, persistence, and rollback smoke commands in `ops/smoke-test.ps1` and `ops/smoke-test.sh`.
 
 ### Implementation for User Story 3
@@ -129,7 +129,7 @@ back without losing verified user progress or active image references.
 **Purpose**: Close migration gaps and prepare the new repository for review.
 
 - [ ] T037 [P] Update `README.md`, `QUICK_START.md`, and `docs/requirements.md` to describe server, mini program, admin, H5 compatibility, and image ownership boundaries.
-- [ ] T038 [P] Add API contract links and migration notes to `contracts/api-v1.md` and `apps/legacy-h5/README.md`.
+- [ ] T038 [P] Add API contract links and migration notes to `contracts/api-v1.md` and `apps/user-h5/README.md`.
 - [ ] T039 Run `npm run check`, `npm test`, all contract checks, and `quickstart.md`; record results in `specs/001-server-wechat-miniapp/evidence/validation.md`.
 - [ ] T040 Review the final repository diff and run `$speckit-analyze`; append any remaining gaps to this task list before implementation is considered complete.
 

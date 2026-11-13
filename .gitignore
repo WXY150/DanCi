@@ -1,5 +1,6 @@
 .env
 generated/
+server/generated/
 node_modules/
 
 .workbuddy/

@@ -60,8 +60,9 @@
   environment variables and writes generated candidates locally.
 - `server/db.js` already has `users`, `sessions`, `words`, `user_progress`, and
   `word_images`; the main schema gap is progress revision/conflict handling.
-- The H5 learning rules in `services/learning.js` can be reused by the mini
+- The H5 learning rules in `apps/user-h5/services/learning.js` can be reused by the mini
   program after extracting them from browser-only storage and DOM code.
-- The current server exposes local `data/`, `services/`, `images/`, and
-  `generated/` paths. Strict separation requires the mini program package to
-  stop bundling word images and consume HTTPS image URLs from the service.
+- The current server maps compatibility URLs to `apps/user-h5/data/`,
+  `apps/user-h5/services/`, `apps/user-h5/images/`, and `server/generated/`.
+  The mini program package still must not bundle word images; it consumes HTTPS
+  image URLs from the service.
