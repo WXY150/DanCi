@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/home/home",
+    "pages/study/study",
+    "pages/result/result",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "单词本",
+    "navigationBarBackgroundColor": "#f5f1e8",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f1e8"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

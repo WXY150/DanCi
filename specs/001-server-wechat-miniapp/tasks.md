@@ -17,11 +17,11 @@ file or directory so it can be assigned after the repository is created.
 **Purpose**: Create the target repository layout without changing product
 behavior yet.
 
-- [ ] T001 Create the target monorepo directories `server/`, `apps/miniapp/`, `apps/admin-web/`, `apps/legacy-h5/`, `packages/learning/`, `contracts/`, and `tests/contract/`.
-- [ ] T002 [P] Move the current Node service files into `server/` while preserving `server/prompts/` and existing image-generation tests.
-- [ ] T003 [P] Move the current administrator files into `apps/admin-web/` and update `server/index.js` static-file allowlisting.
-- [ ] T004 [P] Copy the current H5 client into `apps/legacy-h5/` and keep its existing service boundary during migration.
-- [ ] T005 [P] Add the native mini program skeleton in `apps/miniapp/app.js`, `apps/miniapp/app.json`, and `apps/miniapp/app.wxss`.
+- [X] T001 Create the target monorepo directories `server/`, `apps/miniapp/`, `apps/admin-web/`, `apps/legacy-h5/`, `packages/learning/`, `contracts/`, and `tests/contract/`.
+- [X] T002 [P] Verify the current Node service files remain in `server/` with `server/prompts/` and existing image-generation tests preserved.
+- [X] T003 [P] Stage administrator files in `apps/admin-web/`; keep root copies until the H5 migration is accepted.
+- [X] T004 [P] Copy the current H5 client into `apps/legacy-h5/` and keep its existing service boundary during migration.
+- [X] T005 [P] Add the native mini program skeleton in `apps/miniapp/app.js`, `apps/miniapp/app.json`, and `apps/miniapp/app.wxss`.
 
 ---
 
@@ -30,12 +30,12 @@ behavior yet.
 **Purpose**: Establish contracts, secrets, persistence, and shared validation
 before either client is migrated.
 
-- [ ] T006 Add the versioned API contract and error-code definitions in `contracts/api-v1.md`.
-- [ ] T007 [P] Add server-only WeChat, AI, database, session, and public-origin configuration validation in `server/config.js` and `.env.example`.
-- [ ] T008 [P] Add `/api/v1` routing, request IDs, unified errors, and trusted-origin handling in `server/index.js` and `server/http.js`.
-- [ ] T009 Extend `server/db.js` migrations with WeChat identity fields and `user_progress.revision`, preserving existing H5 data.
-- [ ] T010 [P] Add contract-test helpers and temporary MySQL test configuration in `tests/contract/helpers.js` and `tests/contract/.env.test.example`.
-- [ ] T011 [P] Add deployment health, structured logging, backup, and rollback placeholders in `DEPLOYMENT.md`, `ops/backup.sh`, and `ops/rollback.sh`.
+- [X] T006 Add the versioned API contract and error-code definitions in `contracts/api-v1.md`.
+- [X] T007 [P] Add server-only WeChat, AI, database, session, and public-origin configuration validation in `server/config.js` and `.env.example`.
+- [X] T008 [P] Add `/api/v1` routing, request IDs, unified errors, and trusted-origin handling in `server/index.js` and `server/http.js`.
+- [X] T009 Extend `server/db.js` migrations with WeChat identity fields and `user_progress.revision`, preserving existing H5 data.
+- [X] T010 [P] Add contract-test helpers and temporary MySQL test configuration in `tests/contract/helpers.js` and `tests/contract/.env.test.example`.
+- [X] T011 [P] Add deployment health, structured logging, backup, and rollback placeholders in `DEPLOYMENT.md`, `ops/backup.sh`, and `ops/rollback.sh`.
 
 **Checkpoint**: The repository has a stable contract, server-only secret path,
 compatible schema migration, and runnable contract-test harness.

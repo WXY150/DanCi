@@ -4,6 +4,16 @@ import { WORDS } from '../data/word2-words.js';
 
 let pool;
 
+async function ensureColumn(table, column, definition) {
+  const [rows] = await pool.query(
+    `SELECT COUNT(*) AS count FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [table, column]
+  );
+  if (Number(rows[0]?.count) === 0) {
+    await pool.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
+  }
+}
+
 // 密码哈希函数
 export function hashPassword(password) {
   return new Promise((resolve, reject) => {
@@ -42,11 +52,15 @@ export async function connectDatabase() {
       username VARCHAR(50) NOT NULL UNIQUE,
       password_hash VARCHAR(255) NOT NULL,
       role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+      wechat_openid VARCHAR(100) NULL UNIQUE,
+      auth_provider VARCHAR(30) NOT NULL DEFAULT 'password',
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       last_login_at TIMESTAMP NULL DEFAULT NULL,
       INDEX idx_username (username)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+  await ensureColumn('users', 'wechat_openid', 'VARCHAR(100) NULL UNIQUE');
+  await ensureColumn('users', 'auth_provider', "VARCHAR(30) NOT NULL DEFAULT 'password'");
   
   // 创建会话表
   await pool.query(`
@@ -85,10 +99,12 @@ export async function connectDatabase() {
     CREATE TABLE IF NOT EXISTS user_progress (
       user_id INT UNSIGNED PRIMARY KEY,
       state_json MEDIUMTEXT NOT NULL,
+      revision BIGINT UNSIGNED NOT NULL DEFAULT 0,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+  await ensureColumn('user_progress', 'revision', 'BIGINT UNSIGNED NOT NULL DEFAULT 0');
 
   // 创建单词图片历史表（记录每个单词用过的所有图片）
   await pool.query(`

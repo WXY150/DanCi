@@ -6,11 +6,14 @@ import { WORDS as FALLBACK_WORDS } from '../data/word2-words.js';
 import { checkDatabase, connectDatabase, findWord, listWords, saveGeneratedImage, ensureDefaultAdmin, getUserProgress, upsertUserProgress, deleteUserProgress, listAllUsers, deleteUserById, updateUserRole, findUserById, recordWordImage, listWordImages, findWordImage, activateWordImage, deleteWordImage, createWord, findWordByText } from './db.js';
 import { generateWordImage, imageGenerationConfigured, isGeneratedImageUrl } from './image-generation.js';
 import { registerUser, loginUser, verifySession, logout, cleanupExpiredSessions } from './auth.js';
+import { readConfig } from './config.js';
+import { apiError, apiJson, applyRequestContext } from './http.js';
 
 try { process.loadEnvFile?.(); } catch {}
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const PORT = Number(process.env.PORT) || 4173;
+const SERVER_CONFIG = readConfig();
+const PORT = SERVER_CONFIG.port;
 const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml'
@@ -147,7 +150,27 @@ function serveStatic(response, pathname) {
 }
 
 async function handler(request, response) {
+  const context = applyRequestContext(request, response, SERVER_CONFIG);
+  if (context.handled) return;
   const url = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
+
+  // Versioned read-only learner contract. Mutating v1 routes are added behind
+  // the same boundary as their legacy-compatible counterparts.
+  if (request.method === 'GET' && url.pathname === '/api/v1/health') {
+    if (databaseReady) await checkDatabase();
+    return apiJson(response, 200, {
+      ok: true,
+      storage: databaseReady ? 'mysql' : 'local-fallback',
+      imageGeneration: imageGenerationConfigured()
+    }, context.id);
+  }
+  if (request.method === 'GET' && url.pathname === '/api/v1/words') {
+    const words = databaseReady ? await listWords() : FALLBACK_WORDS;
+    return apiJson(response, 200, { version: 'legacy-word-bank', words }, context.id);
+  }
+  if (url.pathname.startsWith('/api/v1/')) {
+    return apiError(response, 404, 'not_found', '接口不存在', context.id);
+  }
   
   // ==================== 认证相关API ====================
   
