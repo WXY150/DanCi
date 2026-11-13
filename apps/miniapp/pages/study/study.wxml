@@ -2,7 +2,17 @@
   <view wx:if="{{word}}" class="card">
     <text class="word">{{word.word}}</text>
     <text class="ipa">{{word.phonetic}}</text>
-    <text class="copy">学习页面正在迁移，当前只读取服务端词库和已审核图片。</text>
+    <button wx:if="{{!revealed}}" bindtap="onReveal">查看释义与联想图</button>
+    <view wx:if="{{revealed}}" class="answer">
+      <text class="meaning">{{word.meaning}}</text>
+      <image wx:if="{{word.imageUrl}}" class="image" mode="aspectFit" src="{{word.imageUrl}}" />
+      <text class="mnemonic">{{word.mnemonic}}</text>
+    </view>
+    <view class="actions">
+      <button bindtap="onUnknown">{{revealed ? '还不会' : '想不起来'}}</button>
+      <button bindtap="onKnown" type="primary">记住了</button>
+    </view>
+    <text wx:if="{{error}}" class="error">{{error}}</text>
   </view>
   <view wx:else class="card">暂无词条</view>
 </view>

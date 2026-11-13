@@ -62,8 +62,8 @@ in WeChat DevTools, reopen it, and verify progress and current round recovery.
 - [X] T016 [US1] Implement revision-aware `GET/PUT /api/v1/progress` with `409 progress_conflict` responses in `server/db.js` and `server/index.js`.
 - [X] T017 [P] [US1] Extract the existing learning rules into `packages/learning/learning.js` with browser-independent storage boundaries.
 - [X] T018 [P] [US1] Implement mini program authentication and API clients in `apps/miniapp/services/auth.js`, `apps/miniapp/services/api.js`, and `apps/miniapp/services/progress.js`.
-- [ ] T019 [US1] Build mini program login, home, study, result, and profile pages in `apps/miniapp/pages/` using the existing active-recall flow.
-- [ ] T020 [US1] Add loading, image-failure, expired-session, retry, and progress-conflict recovery states in `apps/miniapp/services/api.js` and `apps/miniapp/pages/`.
+- [X] T019 [US1] Build mini program login, home, study, result, and profile pages in `apps/miniapp/pages/` using the existing active-recall flow.
+- [X] T020 [US1] Add loading, image-failure, expired-session, retry, and progress-conflict recovery states in `apps/miniapp/services/api.js` and `apps/miniapp/pages/`.
 - [ ] T021 [US1] Run the mini program 20-word resume acceptance scenario and record evidence in `specs/001-server-wechat-miniapp/evidence/learner.md`.
 
 **Checkpoint**: The mini program can replace the H5 learner surface for the

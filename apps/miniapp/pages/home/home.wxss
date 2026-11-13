@@ -4,5 +4,6 @@
 .count { color: #6b7780; }
 .card { padding: 36rpx; border-radius: 24rpx; background: #fffefa; }
 .copy { display: block; margin-bottom: 32rpx; color: #5e6b74; line-height: 1.7; }
+.progress { display: block; margin-bottom: 24rpx; color: #0e9f78; }
 .error { color: #b94e2d; }
 .plain { margin-top: 24rpx; background: transparent; color: #476780; }
