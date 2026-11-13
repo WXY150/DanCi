@@ -1,0 +1,4 @@
+.page { min-height: 100vh; padding: 40rpx; box-sizing: border-box; }
+.card { padding: 48rpx 36rpx; border-radius: 24rpx; background: #fffefa; }
+.title { display: block; font-size: 48rpx; font-weight: 800; }
+.copy { display: block; margin-top: 24rpx; color: #5e6b74; }

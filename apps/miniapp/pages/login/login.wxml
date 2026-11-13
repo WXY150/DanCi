@@ -1,0 +1,8 @@
+<view class="page">
+  <view class="card">
+    <text class="title">单词本</text>
+    <text class="copy">登录后同步学习进度</text>
+    <button bindtap="onLogin" loading="{{loading}}">微信登录</button>
+    <text wx:if="{{error}}" class="error">{{error}}</text>
+  </view>
+</view>

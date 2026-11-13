@@ -61,7 +61,7 @@ in WeChat DevTools, reopen it, and verify progress and current round recovery.
 - [X] T015 [US1] Implement `GET /api/v1/words` with version metadata and active-image-only DTO mapping in `server/content.js` and `server/index.js`.
 - [X] T016 [US1] Implement revision-aware `GET/PUT /api/v1/progress` with `409 progress_conflict` responses in `server/db.js` and `server/index.js`.
 - [X] T017 [P] [US1] Extract the existing learning rules into `packages/learning/learning.js` with browser-independent storage boundaries.
-- [ ] T018 [P] [US1] Implement mini program authentication and API clients in `apps/miniapp/services/auth.js`, `apps/miniapp/services/api.js`, and `apps/miniapp/services/progress.js`.
+- [X] T018 [P] [US1] Implement mini program authentication and API clients in `apps/miniapp/services/auth.js`, `apps/miniapp/services/api.js`, and `apps/miniapp/services/progress.js`.
 - [ ] T019 [US1] Build mini program login, home, study, result, and profile pages in `apps/miniapp/pages/` using the existing active-recall flow.
 - [ ] T020 [US1] Add loading, image-failure, expired-session, retry, and progress-conflict recovery states in `apps/miniapp/services/api.js` and `apps/miniapp/pages/`.
 - [ ] T021 [US1] Run the mini program 20-word resume acceptance scenario and record evidence in `specs/001-server-wechat-miniapp/evidence/learner.md`.

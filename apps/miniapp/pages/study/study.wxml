@@ -1,0 +1,8 @@
+<view class="page">
+  <view wx:if="{{word}}" class="card">
+    <text class="word">{{word.word}}</text>
+    <text class="ipa">{{word.phonetic}}</text>
+    <text class="copy">学习页面正在迁移，当前只读取服务端词库和已审核图片。</text>
+  </view>
+  <view wx:else class="card">暂无词条</view>
+</view>

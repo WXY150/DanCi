@@ -1,0 +1,10 @@
+<view class="page">
+  <view class="header"><text class="title">今日学习</text><text class="count">词库 {{wordCount}} 词</text></view>
+  <view wx:if="{{loading}}" class="card">正在加载词库...</view>
+  <view wx:elif="{{error}}" class="card error">{{error}}</view>
+  <view wx:else class="card">
+    <text class="copy">AI 生图和图片管理由服务端管理员负责，用户端只展示已审核图片。</text>
+    <button bindtap="startStudy">开始学习</button>
+  </view>
+  <button class="plain" bindtap="openProfile">个人中心</button>
+</view>

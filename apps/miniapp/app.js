@@ -1,6 +1,6 @@
 App({
   globalData: {
-    apiOrigin: '',
+    apiOrigin: require('./config/env').API_ORIGIN,
     sessionToken: ''
   },
 

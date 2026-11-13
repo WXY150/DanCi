@@ -1,0 +1,8 @@
+.page { min-height: 100vh; padding: 40rpx; box-sizing: border-box; }
+.header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 32rpx; }
+.title { font-size: 48rpx; font-weight: 800; }
+.count { color: #6b7780; }
+.card { padding: 36rpx; border-radius: 24rpx; background: #fffefa; }
+.copy { display: block; margin-bottom: 32rpx; color: #5e6b74; line-height: 1.7; }
+.error { color: #b94e2d; }
+.plain { margin-top: 24rpx; background: transparent; color: #476780; }
