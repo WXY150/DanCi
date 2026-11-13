@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
-import { createUser, findUserByUsername, findUserById, updateLastLogin, createSession, findSessionByToken, deleteSession, deleteExpiredSessions } from './db.js';
+import { createUser, findUserByUsername, findUserById, findUserByWechatOpenid, createWechatUser, updateLastLogin, createSession, findSessionByToken, deleteSession, deleteExpiredSessions } from './db.js';
+import { readConfig, validateConfig } from './config.js';
 
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7天
 
@@ -82,6 +83,46 @@ export async function loginUser(username, password) {
       username: user.username,
       role: user.role
     }
+  };
+}
+
+export async function wechatLogin(code) {
+  if (typeof code !== 'string' || !code.trim()) {
+    const error = new Error('微信登录 code 无效');
+    error.statusCode = 400;
+    throw error;
+  }
+  const config = validateConfig(readConfig(), { requireWechat: true });
+  const endpoint = new URL('https://api.weixin.qq.com/sns/jscode2session');
+  endpoint.search = new URLSearchParams({
+    appid: config.wechat.appId,
+    secret: config.wechat.appSecret,
+    js_code: code.trim(),
+    grant_type: 'authorization_code'
+  });
+  let response;
+  try {
+    response = await fetch(endpoint, { signal: AbortSignal.timeout(10000) });
+  } catch {
+    const error = new Error('微信登录服务暂时不可用');
+    error.statusCode = 503;
+    throw error;
+  }
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || payload.errcode || !payload.openid) {
+    const error = new Error(payload.errmsg || '微信登录失败，请重试');
+    error.statusCode = response.ok ? 401 : 503;
+    throw error;
+  }
+
+  let user = await findUserByWechatOpenid(payload.openid);
+  if (!user) user = await createWechatUser(payload.openid);
+  await updateLastLogin(user.id);
+  const token = generateToken();
+  await createSession(user.id, token, new Date(Date.now() + SESSION_DURATION));
+  return {
+    token,
+    user: { id: user.id, username: user.username, role: user.role }
   };
 }
 

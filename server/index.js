@@ -3,11 +3,12 @@ import { unlink, mkdir, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import path from 'node:path';
 import { WORDS as FALLBACK_WORDS } from '../data/word2-words.js';
-import { checkDatabase, connectDatabase, findWord, listWords, saveGeneratedImage, ensureDefaultAdmin, getUserProgress, upsertUserProgress, deleteUserProgress, listAllUsers, deleteUserById, updateUserRole, findUserById, recordWordImage, listWordImages, findWordImage, activateWordImage, deleteWordImage, createWord, findWordByText } from './db.js';
+import { checkDatabase, connectDatabase, findWord, listWords, saveGeneratedImage, ensureDefaultAdmin, getUserProgress, getUserProgressRecord, saveUserProgressWithRevision, upsertUserProgress, deleteUserProgress, listAllUsers, deleteUserById, updateUserRole, findUserById, recordWordImage, listWordImages, findWordImage, activateWordImage, deleteWordImage, createWord, findWordByText } from './db.js';
 import { generateWordImage, imageGenerationConfigured, isGeneratedImageUrl } from './image-generation.js';
-import { registerUser, loginUser, verifySession, logout, cleanupExpiredSessions } from './auth.js';
+import { registerUser, loginUser, wechatLogin, verifySession, logout, cleanupExpiredSessions } from './auth.js';
 import { readConfig } from './config.js';
 import { apiError, apiJson, applyRequestContext } from './http.js';
+import { learnerWords } from './content.js';
 
 try { process.loadEnvFile?.(); } catch {}
 
@@ -164,9 +165,61 @@ async function handler(request, response) {
       imageGeneration: imageGenerationConfigured()
     }, context.id);
   }
+  if (request.method === 'POST' && url.pathname === '/api/v1/auth/wechat-login') {
+    if (!databaseReady) return apiError(response, 503, 'unavailable', '数据库未就绪', context.id);
+    try {
+      const { code } = await readJson(request);
+      const result = await wechatLogin(code);
+      return apiJson(response, 200, result, context.id);
+    } catch (error) {
+      return apiError(response, error.statusCode || 502, error.statusCode === 503 ? 'unavailable' : 'unauthorized', error.message, context.id);
+    }
+  }
+  if (request.method === 'GET' && url.pathname === '/api/v1/auth/me') {
+    const session = await verifySession(getAuthToken(request));
+    if (!session) return apiError(response, 401, 'unauthorized', '未登录或会话已过期', context.id);
+    return apiJson(response, 200, { user: { id: session.userId, username: session.username, role: session.role } }, context.id);
+  }
+  if (request.method === 'POST' && url.pathname === '/api/v1/auth/logout') {
+    const token = getAuthToken(request);
+    if (token) await logout(token);
+    return apiJson(response, 200, { success: true }, context.id);
+  }
   if (request.method === 'GET' && url.pathname === '/api/v1/words') {
     const words = databaseReady ? await listWords() : FALLBACK_WORDS;
-    return apiJson(response, 200, { version: 'legacy-word-bank', words }, context.id);
+    return apiJson(response, 200, {
+      version: 'legacy-word-bank',
+      words: learnerWords(words, SERVER_CONFIG.publicOrigin)
+    }, context.id);
+  }
+  if (request.method === 'GET' && url.pathname === '/api/v1/progress') {
+    if (!databaseReady) return apiError(response, 503, 'unavailable', '数据库未就绪', context.id);
+    const session = await verifySession(getAuthToken(request));
+    if (!session) return apiError(response, 401, 'unauthorized', '未登录', context.id);
+    const record = await getUserProgressRecord(session.userId);
+    let state = null;
+    if (record.stateJson) { try { state = JSON.parse(record.stateJson); } catch { state = null; } }
+    return apiJson(response, 200, { state, revision: record.revision, updatedAt: record.updatedAt }, context.id);
+  }
+  if (request.method === 'PUT' && url.pathname === '/api/v1/progress') {
+    if (!databaseReady) return apiError(response, 503, 'unavailable', '数据库未就绪', context.id);
+    const session = await verifySession(getAuthToken(request));
+    if (!session) return apiError(response, 401, 'unauthorized', '未登录', context.id);
+    const body = await readJson(request, 2 * 1024 * 1024);
+    if (!body.state || typeof body.state !== 'object' || !Number.isInteger(Number(body.baseRevision))) {
+      return apiError(response, 400, 'validation', 'state 和 baseRevision 必填', context.id);
+    }
+    const saved = await saveUserProgressWithRevision(session.userId, JSON.stringify(body.state), Number(body.baseRevision));
+    if (saved.conflict) {
+      let state = null;
+      if (saved.stateJson) { try { state = JSON.parse(saved.stateJson); } catch { state = null; } }
+      return apiError(response, 409, 'progress_conflict', '进度已被其他设备更新', context.id, {
+        state,
+        revision: saved.revision,
+        updatedAt: saved.updatedAt
+      });
+    }
+    return apiJson(response, 200, { revision: saved.revision, updatedAt: saved.updatedAt }, context.id);
   }
   if (url.pathname.startsWith('/api/v1/')) {
     return apiError(response, 404, 'not_found', '接口不存在', context.id);

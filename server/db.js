@@ -265,6 +265,22 @@ export async function findUserByUsername(username) {
   return rows[0] || null;
 }
 
+export async function findUserByWechatOpenid(openid) {
+  const [rows] = await pool.execute('SELECT * FROM users WHERE wechat_openid = ? LIMIT 1', [openid]);
+  return rows[0] || null;
+}
+
+export async function createWechatUser(openid) {
+  const suffix = crypto.createHash('sha256').update(openid).digest('hex').slice(0, 20);
+  const username = `wx_${suffix}`;
+  const [result] = await pool.execute(
+    `INSERT INTO users (username, password_hash, role, wechat_openid, auth_provider)
+     VALUES (?, '', 'user', ?, 'wechat')`,
+    [username, openid]
+  );
+  return findUserById(result.insertId);
+}
+
 export async function findUserById(id) {
   const [rows] = await pool.execute('SELECT * FROM users WHERE id = ? LIMIT 1', [id]);
   return rows[0] || null;
@@ -319,6 +335,65 @@ export async function upsertUserProgress(userId, stateJson) {
 export async function getUserProgress(userId) {
   const [rows] = await pool.execute('SELECT state_json FROM user_progress WHERE user_id = ? LIMIT 1', [userId]);
   return rows[0] ? rows[0].state_json : null;
+}
+
+export async function getUserProgressRecord(userId) {
+  const [rows] = await pool.execute(
+    'SELECT state_json, revision, updated_at FROM user_progress WHERE user_id = ? LIMIT 1',
+    [userId]
+  );
+  if (!rows[0]) return { stateJson: null, revision: 0, updatedAt: null };
+  return { stateJson: rows[0].state_json, revision: Number(rows[0].revision), updatedAt: rows[0].updated_at };
+}
+
+export async function saveUserProgressWithRevision(userId, stateJson, baseRevision) {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const [rows] = await connection.execute(
+      'SELECT state_json, revision, updated_at FROM user_progress WHERE user_id = ? FOR UPDATE',
+      [userId]
+    );
+    const current = rows[0] || { state_json: null, revision: 0, updated_at: null };
+    if (Number(current.revision) !== Number(baseRevision)) {
+      await connection.rollback();
+      return {
+        conflict: true,
+        stateJson: current.state_json,
+        revision: Number(current.revision),
+        updatedAt: current.updated_at
+      };
+    }
+
+    const nextRevision = Number(current.revision) + 1;
+    if (rows[0]) {
+      await connection.execute(
+        'UPDATE user_progress SET state_json = ?, revision = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?',
+        [stateJson, nextRevision, userId]
+      );
+    } else {
+      await connection.execute(
+        'INSERT INTO user_progress (user_id, state_json, revision) VALUES (?, ?, ?)',
+        [userId, stateJson, nextRevision]
+      );
+    }
+    await connection.commit();
+    const [saved] = await connection.execute(
+      'SELECT state_json, revision, updated_at FROM user_progress WHERE user_id = ? LIMIT 1',
+      [userId]
+    );
+    return {
+      conflict: false,
+      stateJson: saved[0].state_json,
+      revision: Number(saved[0].revision),
+      updatedAt: saved[0].updated_at
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
 export async function deleteUserProgress(userId) {
