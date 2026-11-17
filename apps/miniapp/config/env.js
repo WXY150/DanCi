@@ -1,4 +1,4 @@
-// Replace this origin per environment; never put WeChat AppSecret or AI keys here.
+// Local developer-tools preview only. Production builds need an HTTPS allowlisted origin.
 module.exports = {
-  API_ORIGIN: 'https://api.example.com'
+  API_ORIGIN: 'http://127.0.0.1:4173'
 };
