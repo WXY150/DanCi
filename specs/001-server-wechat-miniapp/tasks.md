@@ -21,7 +21,7 @@ behavior yet.
 - [X] T002 [P] Verify the current Node service files remain in `server/` with `server/prompts/` and existing image-generation tests preserved.
 - [X] T003 [P] Stage administrator files in `apps/admin-web/`; keep root copies until the H5 migration is accepted.
 - [X] T004 [P] Copy the current H5 client into `apps/user-h5/` and keep its existing service boundary during migration.
-- [X] T005 [P] Add the native mini program skeleton in `apps/miniapp/app.js`, `apps/miniapp/app.json`, and `apps/miniapp/app.wxss`.
+- [X] T005 [P] Add the native mini program shell and required page configuration files in `apps/miniapp/`.
 
 ---
 

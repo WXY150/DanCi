@@ -1,8 +1,11 @@
 export function learnerWord(word, publicOrigin = '') {
   const imageUrl = word.imageUrl || '';
-  const absoluteImageUrl = imageUrl && publicOrigin && imageUrl.startsWith('/')
-    ? `${publicOrigin}${imageUrl}`
-    : imageUrl;
+  const imagePath = imageUrl
+    ? imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`
+    : '';
+  const absoluteImageUrl = imagePath && publicOrigin
+    ? `${publicOrigin}${imagePath}`
+    : imagePath;
   return {
     id: word.id,
     word: word.word,

@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 const port = 4184;
 const child = spawn(process.execPath, ['server/index.js'], {
   cwd: process.cwd(),
-  env: { ...process.env, PORT: String(port), DB_REQUIRED: 'false' },
+  env: { ...process.env, PORT: String(port), PUBLIC_ORIGIN: `http://127.0.0.1:${port}`, DB_REQUIRED: 'false' },
   stdio: ['ignore', 'pipe', 'pipe']
 });
 
@@ -28,6 +28,7 @@ try {
   assert.equal(wordsResponse.status, 200);
   assert.equal(words.words.length, 114);
   assert.ok(words.words.every(word => !('candidateImages' in word) && !('imageHistory' in word)));
+  assert.ok(words.words.every(word => /^http:\/\/127\.0\.0\.1:4184\/(?:data|images)\//.test(word.imageUrl)));
 
   const meResponse = await fetch(`${origin}/api/v1/auth/me`);
   const me = await meResponse.json();
